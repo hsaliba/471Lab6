@@ -46,6 +46,7 @@ int g_CiboLen, g_GiboLen, g_RiboLen;
 static float g_width, g_height;
 float g_tx = 0;
 float g_ty = 0;
+float g_tz = 0;
 
 /*camera controls - do not change for Lab 5 */
 glm::vec3 g_trans(0, 0, -5.5);
@@ -252,7 +253,80 @@ void Initialize ()					// Any GL Init Code
     ModelTrans.loadIdentity();
  
 }
+void drawBuff() {
+     float x,y,z;
+     float xOffset = 0.0, zOffset = 0.0;
+       for (int i=0; i < 6; i++) {
+      ModelTrans.pushMatrix();
+        /* set up where to draw the box */
+        x = (rand()  % 6 / 2.0) + 0.75;
+        y = (rand()  % 6 / 2.0) + 0.75;
+        z = 1.0;
+        ModelTrans.translate(vec3(g_tx+i-3 + (x - 1) / 2.0 + xOffset, g_ty + (y - 1) / 2.0, g_tz - 2));
+        ModelTrans.scale(x,y,z);
+        SetModel();
+        /* set the color in the shader */
+        glUniform3f(h_uColor, (rand() % 100) / 100.0,(rand() % 100) / 100.0 ,(rand() % 100) / 100.0 );
+        glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
+      ModelTrans.popMatrix();
+      safe_glDisableVertexAttribArray(h_aPosition);
+    safe_glEnableVertexAttribArray(h_aPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, roofBuffObj);
+    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RIndxBuffObj);
+             ModelTrans.pushMatrix();
+        /* set up where to draw the box */
+        ModelTrans.translate(vec3(g_tx+i-3 + (x - 1) / 2.0 + xOffset, g_ty + (y - 1) / 2.0, g_tz - 2));
+        ModelTrans.scale(x,y,z);
+        SetModel();
+        xOffset += (x - 1);
+        /* set the color in the shader */
+        glUniform3f(h_uColor, (rand() % 100) / 100.0,(rand() % 100) / 100.0 ,(rand() % 100) / 100.0 );
+        glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
+      ModelTrans.popMatrix();
+       safe_glDisableVertexAttribArray(h_aPosition);
+    safe_glEnableVertexAttribArray(h_aPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, CubeBuffObj);
+    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
+    }
+    for(int i = 5; i < 10; i++) {
+             ModelTrans.pushMatrix();
+       x = 1.0;
+       y = (rand()  % 6 / 2.0) + 0.75;
+       z = (rand()  % 6 / 2.0) + 0.75;
+        /* set up where to draw the box */
+        ModelTrans.translate(vec3(g_tx+2 + xOffset, g_ty + (y - 1) / 2.0, g_tz + i - 6 + (z-1) / 2.0 + zOffset));
+    ModelTrans.scale(x,y,z);        
+   SetModel();
+        /* set the color in the shader */
+        glUniform3f(h_uColor, (rand() % 100) / 100.0,(rand() % 100) / 100.0 ,(rand() % 100) / 100.0 );
+                 glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
+                       ModelTrans.popMatrix();
+   safe_glDisableVertexAttribArray(h_aPosition);
+    safe_glEnableVertexAttribArray(h_aPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, roofBuffObj);
+    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RIndxBuffObj);
+    ModelTrans.pushMatrix();
 
+        ModelTrans.translate(vec3(g_tx+2 + xOffset, g_ty + (y - 1) / 2.0, g_tz + i - 6 + (z-1) / 2.0 + zOffset));
+    ModelTrans.scale(x,y,z);
+   SetModel();
+    zOffset += (z - 1);
+        /* set the color in the shader */
+        glUniform3f(h_uColor, (rand() % 100) / 100.0,(rand() % 100) / 100.0 ,(rand() % 100) / 100.0 );
+                 glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
+                       ModelTrans.popMatrix();
+ safe_glDisableVertexAttribArray(h_aPosition);
+    safe_glEnableVertexAttribArray(h_aPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, CubeBuffObj);
+    safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
+
+    }
+
+}
 /* Main display function */
 void Draw (void)
 {
@@ -293,30 +367,13 @@ void Draw (void)
     // bind ibo
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, CIndxBuffObj);
 
-
-    for (int i=0; i < 1; i++) {
-      ModelTrans.pushMatrix();
-        /* set up where to draw the box */
-        ModelTrans.translate(vec3(g_tx+i*1.5, g_ty, 0));
-        SetModel();
-        /* set the color in the shader */
-        glUniform3f(h_uColor, 0.1*i*2, 0.78, 0.9);
-        // draw!
-        glDrawElements(GL_TRIANGLES, g_CiboLen, GL_UNSIGNED_SHORT, 0);
-      ModelTrans.popMatrix();
-    }
+    srand(time(NULL));
+    drawBuff();
     safe_glDisableVertexAttribArray(h_aPosition);
     safe_glEnableVertexAttribArray(h_aPosition);
     glBindBuffer(GL_ARRAY_BUFFER, roofBuffObj);
     safe_glVertexAttribPointer(h_aPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, RIndxBuffObj);
-    for(int i = 0; i < 1; i++) {
-      ModelTrans.pushMatrix();
-      SetModel();
-      glUniform3f(h_uColor, 0.0,0.0,0.0);
-      glDrawElements(GL_TRIANGLES, g_RiboLen, GL_UNSIGNED_SHORT, 0);
-      ModelTrans.popMatrix();
-    }
     // Disable the attributes used by our shader
     safe_glDisableVertexAttribArray(h_aPosition);
 
@@ -345,6 +402,12 @@ void keyboard(unsigned char key, int x, int y ){
     case 'm':
       g_tx += .1;
       break;
+   case 'a':
+     g_tz +=.1;
+   break;
+   case 's':
+     g_tz -= .1;
+    break;
     case 'q': case 'Q' :
       exit( EXIT_SUCCESS );
       break;
